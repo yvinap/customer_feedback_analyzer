@@ -1,0 +1,149 @@
+# ─── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Distribution / packaging
+.Python
+
+# Unit test / coverage
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*.ipynb
+
+# Sphinx documentation
+docs/_build/
+
+# pytype
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# ─── AWS CDK ───────────────────────────────────────────────────────────────────
+cdk.out/
+cdk.context.json
+.cdk.staging/
+
+# ─── AWS SAM ───────────────────────────────────────────────────────────────────
+.aws-sam/
+samconfig.toml
+
+# ─── Environment Variables ─────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.env
+
+# ─── IDE ───────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# ─── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ─── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+*.out
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ─── React / Node ──────────────────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+.npm
+.eslintcache
+
+# Production builds
+build/
+.next/
+out/
+.nuxt/
+dist/
+*.tsbuildinfo
+.cache/
+public/static/
+
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# ─── Terraform ─────────────────────────────────────────────────────────────────
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+*.tfplan
+
+# ─── Misc ──────────────────────────────────────────────────────────────────────
+*.tmp
+*.bak
+*.orig
+.Trash-*
+tmp/
+temp/
