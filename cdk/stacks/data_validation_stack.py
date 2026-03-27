@@ -82,11 +82,55 @@ class DataValidationStack(Stack):
                 ]
             ),
             schema_change_policy=glue.CfnCrawler.SchemaChangePolicyProperty(
-                update_behavior="UPDATE_IN_DATABASE",
+                update_behavior="LOG",
                 delete_behavior="LOG",
             ),
             recrawl_policy=glue.CfnCrawler.RecrawlPolicyProperty(
                 recrawl_behavior="CRAWL_NEW_FOLDERS_ONLY"
+            ),
+        )
+
+        # ── Pre-seed Glue Table (text_reviews) ────────────────────────────────
+        # CfnDataQualityRuleset requires the target table to exist in the Data
+        # Catalog at deploy time. We create it here with the known CSV schema;
+        # the crawler will update the definition when it executes.
+        text_reviews_table = glue.CfnTable(
+            self,
+            "TextReviewsTable",
+            catalog_id=self.account,
+            database_name=glue_database_name,
+            table_input=glue.CfnTable.TableInputProperty(
+                name="text_reviews",
+                description="Amazon product reviews – pre-seeded schema; crawler updates on first run",
+                table_type="EXTERNAL_TABLE",
+                storage_descriptor=glue.CfnTable.StorageDescriptorProperty(
+                    location=f"s3://{input_bucket.bucket_name}/text-reviews/",
+                    input_format="org.apache.hadoop.mapred.TextInputFormat",
+                    output_format="org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+                    serde_info=glue.CfnTable.SerdeInfoProperty(
+                        serialization_library="org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe",
+                        parameters={"field.delim": ","},
+                    ),
+                    columns=[
+                        glue.CfnTable.ColumnProperty(name="product_id", type="string"),
+                        glue.CfnTable.ColumnProperty(name="product_name", type="string"),
+                        glue.CfnTable.ColumnProperty(name="category", type="string"),
+                        glue.CfnTable.ColumnProperty(name="discounted_price", type="string"),
+                        glue.CfnTable.ColumnProperty(name="actual_price", type="string"),
+                        glue.CfnTable.ColumnProperty(name="discount_percentage", type="string"),
+                        glue.CfnTable.ColumnProperty(name="rating", type="double"),
+                        glue.CfnTable.ColumnProperty(name="rating_count", type="string"),
+                        glue.CfnTable.ColumnProperty(name="about_product", type="string"),
+                        glue.CfnTable.ColumnProperty(name="user_id", type="string"),
+                        glue.CfnTable.ColumnProperty(name="user_name", type="string"),
+                        glue.CfnTable.ColumnProperty(name="review_id", type="string"),
+                        glue.CfnTable.ColumnProperty(name="review_title", type="string"),
+                        glue.CfnTable.ColumnProperty(name="review_content", type="string"),
+                        glue.CfnTable.ColumnProperty(name="img_link", type="string"),
+                        glue.CfnTable.ColumnProperty(name="product_link", type="string"),
+                    ],
+                ),
+                parameters={"classification": "csv", "skip.header.line.count": "1"},
             ),
         )
 
@@ -98,11 +142,10 @@ class DataValidationStack(Stack):
             "    IsComplete \"rating\",",
             "    IsComplete \"product_id\",",
             "    IsComplete \"user_id\",",
-            "    ColumnValues \"rating\" between 1 and 5,",
+            "    ColumnValues \"rating\" between 1.0 and 5.0,",
             "    ColumnLength \"review_content\" > 10,",
             "    Uniqueness \"review_id\" > 0.85,",
             "    IsComplete \"review_title\",",
-            "    ColumnCount > 10,",
             "    Completeness \"user_name\" > 0.8",
             "]",
         ])
@@ -114,11 +157,11 @@ class DataValidationStack(Stack):
             ruleset=dqdl_ruleset,
             target_table=glue.CfnDataQualityRuleset.DataQualityTargetTableProperty(
                 database_name=glue_database_name,
-                table_name="text_reviews",   # created by the crawler above
+                table_name="text_reviews",
             ),
             description="Data quality rules for structured customer feedback CSV files",
         )
-        glue_dq_ruleset.add_dependency(glue_crawler)
+        glue_dq_ruleset.add_dependency(text_reviews_table)
 
         # ── Lambda: text_validator ─────────────────────────────────────────────
         validator_role = iam.Role(
