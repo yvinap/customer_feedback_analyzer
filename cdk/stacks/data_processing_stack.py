@@ -8,7 +8,7 @@ Resources created:
   - Lambda: textract_processor     (image → text via Textract)
   - Lambda: transcribe_processor   (audio → transcript via Transcribe)
   - Lambda: survey_summarizer      (CSV → natural-language summary)
-  - Lambda: bedrock_formatter      (format data + invoke Claude)
+  - Lambda: bedrock_formatter      (format data + invoke Amazon Nova Lite)
   - Lambda: feedback_quality_loop  (quality improvement from model output)
   - Step Functions State Machine   (orchestrates all processing Lambdas)
   - EventBridge Rule               (S3 PutObject → pipeline_orchestrator)
@@ -73,7 +73,7 @@ class DataProcessingStack(Stack):
         log_level = self.node.try_get_context("log_level") or "INFO"
         bedrock_model_id = (
             self.node.try_get_context("bedrock_model_id")
-            or "anthropic.claude-3-5-sonnet-20241022"
+            or "amazon.nova-lite-v1:0"
         )
         comprehend_language = self.node.try_get_context("comprehend_language") or "en"
 
@@ -254,7 +254,7 @@ class DataProcessingStack(Stack):
         )
 
         # ═══════════════════════════════════════════════════════════════════════
-        # Lambda: bedrock_formatter (formats payload + invokes Claude)
+        # Lambda: bedrock_formatter (formats payload + invokes Amazon Nova Lite)
         # ═══════════════════════════════════════════════════════════════════════
         bedrock_role = _lambda_role(
             self, "BedrockFormatterRole",

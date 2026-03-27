@@ -2,7 +2,7 @@
 bedrock_formatter/handler.py
 
 Formats all processed data from previous pipeline stages into structured
-prompts for Claude (via Amazon Bedrock) and invokes the model to generate
+prompts for Amazon Nova Lite (via Amazon Bedrock) and invokes the model to generate
 actionable business insights.
 
 Supports:
@@ -10,7 +10,7 @@ Supports:
   - Image path          (Textract extracted text)
   - Audio path          (transcribed + normalised text)
   - Survey path         (NL summaries with statistics)
-  - Multimodal requests (image bytes + text in the same Claude message)
+  - Multimodal requests (image bytes + text in the same message)
 
 Input:  Full Step Functions state dict from previous stages
 Output: State dict + "bedrock_response": dict  +  insight written to output S3 bucket
@@ -33,7 +33,7 @@ bedrock_runtime = boto3.client("bedrock-runtime", region_name=os.environ.get("BE
 s3 = boto3.client("s3")
 cloudwatch = boto3.client("cloudwatch")
 
-BEDROCK_MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "anthropic.claude-3-5-sonnet-20241022")
+BEDROCK_MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "amazon.nova-lite-v1:0")
 OUTPUT_BUCKET = os.environ.get("OUTPUT_BUCKET", "")
 PROCESSED_BUCKET = os.environ.get("PROCESSED_BUCKET", "")
 MAX_TOKENS = int(os.environ.get("MAX_TOKENS", "4096"))
@@ -130,7 +130,7 @@ Provide:
 
 
 def _build_text_reviews_prompt(event: dict) -> list[dict]:
-    """Build a Claude messages list for the text_reviews data type."""
+    """Build a Nova messages list for the text_reviews data type."""
     comprehend = event.get("comprehend_results", {})
     sentiment = comprehend.get("sentiment", {})
     entities = comprehend.get("entities", {})
@@ -160,7 +160,7 @@ def _build_text_reviews_prompt(event: dict) -> list[dict]:
         key_phrases_summary=phrases_summary,
         sample_text=sample,
     )
-    return [{"role": "user", "content": [{"type": "text", "text": prompt_text}]}]
+    return [{"role": "user", "content": [{"text": prompt_text}]}]
 
 
 def _build_image_prompt(event: dict) -> list[dict]:
@@ -176,20 +176,19 @@ def _build_image_prompt(event: dict) -> list[dict]:
         obj = s3.get_object(Bucket=bucket, Key=key)
         image_bytes = obj["Body"].read()
         ext = key.rsplit(".", 1)[-1].lower() if "." in key else "jpeg"
-        media_type_map = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "gif": "image/gif", "webp": "image/webp"}
-        media_type = media_type_map.get(ext, "image/jpeg")
+        format_map = {"jpg": "jpeg", "jpeg": "jpeg", "png": "png", "gif": "gif", "webp": "webp"}
+        img_format = format_map.get(ext, "jpeg")
 
-        if len(image_bytes) <= 5 * 1024 * 1024:  # Claude image limit
+        if len(image_bytes) <= 5 * 1024 * 1024:  # Nova image limit
             content.append({
-                "type": "image",
-                "source": {
-                    "type": "base64",
-                    "media_type": media_type,
-                    "data": base64.b64encode(image_bytes).decode("utf-8"),
+                "image": {
+                    "format": img_format,
+                    "source": {
+                        "bytes": base64.b64encode(image_bytes).decode("utf-8"),
+                    },
                 },
             })
             content.append({
-                "type": "text",
                 "text": MULTIMODAL_TEMPLATE_TEXT.format(text_content=extracted[:5_000]),
             })
             logger.info("Multimodal request: image (%d bytes) + text", len(image_bytes))
@@ -199,7 +198,6 @@ def _build_image_prompt(event: dict) -> list[dict]:
     except Exception:
         logger.info("Falling back to text-only image analysis")
         content.append({
-            "type": "text",
             "text": IMAGE_TEMPLATE.format(extracted_text=extracted[:5_000]),
         })
 
@@ -210,7 +208,7 @@ def _build_audio_prompt(event: dict) -> list[dict]:
     transcript = event.get("transcript", "") or event.get("normalized_text", "")
     return [{
         "role": "user",
-        "content": [{"type": "text", "text": AUDIO_TEMPLATE.format(transcript=transcript[:5_000])}],
+        "content": [{"text": AUDIO_TEMPLATE.format(transcript=transcript[:5_000])}],
     }]
 
 
@@ -218,7 +216,7 @@ def _build_survey_prompt(event: dict) -> list[dict]:
     summary = event.get("survey_summary", "") or event.get("normalized_text", "")
     return [{
         "role": "user",
-        "content": [{"type": "text", "text": SURVEY_TEMPLATE.format(survey_summary=summary[:5_000])}],
+        "content": [{"text": SURVEY_TEMPLATE.format(survey_summary=summary[:5_000])}],
     }]
 
 
@@ -226,18 +224,18 @@ def _build_survey_prompt(event: dict) -> list[dict]:
 FOLLOWUP_TEMPLATE = [
     {
         "role": "user",
-        "content": [{"type": "text", "text": "What is the single most important action the business should take based on this feedback? Be specific and concise."}],
+        "content": [{"text": "What is the single most important action the business should take based on this feedback? Be specific and concise."}],
     }
 ]
 
 
 def _invoke_bedrock(messages: list[dict]) -> tuple[str, int]:
-    """Invoke Claude via Bedrock. Returns (response_text, input_token_count)."""
+    """Invoke Amazon Nova Lite via Bedrock. Returns (response_text, input_token_count)."""
     body = {
-        "anthropic_version": "bedrock-2023-05-31",
-        "max_tokens": MAX_TOKENS,
-        "system": SYSTEM_PROMPT,
+        "schemaVersion": "messages-v1",
         "messages": messages,
+        "system": [{"text": SYSTEM_PROMPT}],
+        "inferenceConfig": {"maxTokens": MAX_TOKENS},
     }
     response = bedrock_runtime.invoke_model(
         modelId=BEDROCK_MODEL_ID,
@@ -246,10 +244,10 @@ def _invoke_bedrock(messages: list[dict]) -> tuple[str, int]:
         body=json.dumps(body),
     )
     response_body = json.loads(response["body"].read())
-    content = response_body.get("content", [])
-    text = "\n".join(block.get("text", "") for block in content if block.get("type") == "text")
+    content = response_body.get("output", {}).get("message", {}).get("content", [])
+    text = "\n".join(block.get("text", "") for block in content)
     usage = response_body.get("usage", {})
-    input_tokens = usage.get("input_tokens", 0)
+    input_tokens = usage.get("inputTokens", 0)
     return text, input_tokens
 
 
@@ -269,7 +267,7 @@ def handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
     else:
         messages = [{
             "role": "user",
-            "content": [{"type": "text", "text": f"Analyze this customer feedback:\n\n{event.get('normalized_text', '')[:5_000]}"}],
+            "content": [{"text": f"Analyze this customer feedback:\n\n{event.get('normalized_text', '')[:5_000]}"}],
         }]
 
     # ── Primary analysis ───────────────────────────────────────────────────────
@@ -286,7 +284,7 @@ def handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
     top_action = ""
     try:
         dialog = messages + [
-            {"role": "assistant", "content": [{"type": "text", "text": insights_text}]},
+            {"role": "assistant", "content": [{"text": insights_text}]},
             *FOLLOWUP_TEMPLATE,
         ]
         top_action, _ = _invoke_bedrock(dialog)

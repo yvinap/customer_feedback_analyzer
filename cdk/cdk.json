@@ -14,7 +14,7 @@
   },
   "context": {
     "prefix": "cfa",
-    "bedrock_model_id": "anthropic.claude-3-5-sonnet-20241022",
+    "bedrock_model_id": "amazon.nova-lite-v1:0",
     "comprehend_language": "en",
     "log_level": "INFO",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,

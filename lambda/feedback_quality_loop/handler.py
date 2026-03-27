@@ -1,7 +1,7 @@
 """
 feedback_quality_loop/handler.py
 
-Implements a quality feedback loop: uses the Claude-generated insights to
+Implements a quality feedback loop: uses the Nova-generated insights to
 derive data quality signals, update quality scores, and flag records that
 need re-processing or human review.
 

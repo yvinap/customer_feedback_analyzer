@@ -2,7 +2,7 @@
 
 A comprehensive, end-to-end **multimodal data validation and processing pipeline** that prepares
 customer feedback from multiple sources (text reviews, product images, call recordings, and survey
-responses) for analysis by foundation models (Claude on Amazon Bedrock) to generate actionable
+responses) for analysis by foundation models (Amazon Nova Lite on Amazon Bedrock) to generate actionable
 business insights.
 
 ---
@@ -58,14 +58,14 @@ business insights.
                                            │
                                            ▼
                               ┌────────────────────────┐
-                              │   Bedrock Formatter    │   ← Formats data for Claude
+                              │   Bedrock Formatter    │   ← Formats data for Nova Lite
                               │       (Lambda)         │
                               └────────────┬───────────┘
                                            │
                                            ▼
                               ┌────────────────────────┐
-                              │  Amazon Bedrock         │   ← Claude generates insights
-                              │  (Claude Sonnet)        │
+                              │  Amazon Bedrock         │   ← Nova Lite generates insights
+                              │  (Amazon Nova Lite)     │
                               └────────────┬───────────┘
                                            │
                               ┌────────────┴───────────┐
@@ -120,7 +120,7 @@ customer_feedback_analyzer/
 │   ├── textract_processor/           # Image → text extraction
 │   ├── transcribe_processor/         # Audio → transcript
 │   ├── survey_summarizer/            # CSV survey → NL summary
-│   ├── bedrock_formatter/            # Format data + invoke Claude
+│   ├── bedrock_formatter/            # Format data + invoke Amazon Nova Lite
 │   ├── feedback_quality_loop/        # Use model output to improve DQ
 │   └── cloudwatch_metrics/           # Publish custom CW metrics
 │
@@ -278,7 +278,7 @@ CSV uploaded to s3://input/text-reviews/
     → text_validator:   checks length, encoding, vocabulary diversity
     → text_normalizer:  strips HTML, normalises unicode, removes URLs
     → comprehend_processor: batch sentiment + entity + key-phrase extraction
-    → bedrock_formatter:    formats as Claude message + invokes Bedrock
+    → bedrock_formatter:    formats as Nova Lite message + invokes Bedrock
     → output written to s3://output/insights/
     → feedback_quality_loop: quality score updated from model output
     → cloudwatch_metrics:   publishes DataQualityScore, EntitiesFound, SentimentDistribution
@@ -324,8 +324,8 @@ Glue DQ evaluation results are stored in the Glue Data Catalog and streamed to C
 | `textract_processor` | Step Functions | Async document text detection via Amazon Textract |
 | `transcribe_processor` | Step Functions | Starts + polls Amazon Transcribe transcription job |
 | `survey_summarizer` | Step Functions | Converts CSV survey rows to natural-language summaries |
-| `bedrock_formatter` | Step Functions | Formats payload + invokes Claude via Amazon Bedrock |
-| `feedback_quality_loop` | Step Functions | Derives quality signals from Claude output; updates scores |
+| `bedrock_formatter` | Step Functions | Formats payload + invokes Amazon Nova Lite via Amazon Bedrock |
+| `feedback_quality_loop` | Step Functions | Derives quality signals from Nova Lite output; updates scores |
 | `cloudwatch_metrics` | Step Functions | Publishes custom CloudWatch metrics for each execution |
 
 ---
@@ -337,7 +337,7 @@ CDK context values (set in `cdk/cdk.json` or with `--context`):
 | Key | Default | Description |
 |---|---|---|
 | `prefix` | `cfa` | Resource name prefix |
-| `bedrock_model_id` | `anthropic.claude-3-5-sonnet-20241022` | Bedrock model to use |
+| `bedrock_model_id` | `amazon.nova-lite-v1:0` | Bedrock model to use |
 | `comprehend_language` | `en` | Language code for Comprehend |
 | `log_level` | `INFO` | Lambda log level |
 
