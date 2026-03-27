@@ -1,0 +1,15 @@
+{
+  "data_type": "audio",
+  "source_key": "audio/speech_sample.mp3",
+  "timestamp": "2026-03-27T17:37:28.037358+00:00",
+  "quality_status": "needs_review",
+  "score_breakdown": {
+    "base_score_from_validation": 50.0,
+    "comprehend_boost": 10.0,
+    "model_adjustment": 2.0,
+    "final_score": 62.0,
+    "model_concerns_identified": []
+  },
+  "needs_reprocessing": true,
+  "threshold": 70.0
+}

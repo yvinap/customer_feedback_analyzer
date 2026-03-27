@@ -1,0 +1,17 @@
+{
+  "data_type": "text_reviews",
+  "source_key": "text-reviews/amazon.csv",
+  "timestamp": "2026-03-27T17:37:10.152354+00:00",
+  "quality_status": "passed",
+  "score_breakdown": {
+    "base_score_from_validation": 63.55,
+    "comprehend_boost": 0.0,
+    "model_adjustment": 13.0,
+    "final_score": 76.55,
+    "model_concerns_identified": [
+      "Model identified: unclear"
+    ]
+  },
+  "needs_reprocessing": false,
+  "threshold": 70.0
+}

@@ -1,0 +1,17 @@
+{
+  "data_type": "images",
+  "source_key": "images/market_2.jpg",
+  "timestamp": "2026-03-27T17:37:10.789596+00:00",
+  "quality_status": "needs_review",
+  "score_breakdown": {
+    "base_score_from_validation": 50.0,
+    "comprehend_boost": 0.0,
+    "model_adjustment": -8.0,
+    "final_score": 42.0,
+    "model_concerns_identified": [
+      "Model identified: incomplete"
+    ]
+  },
+  "needs_reprocessing": true,
+  "threshold": 70.0
+}

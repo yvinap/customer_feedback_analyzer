@@ -1,0 +1,181 @@
+{
+  "source_bucket": "cfa-customer-feedback-input-650251711242",
+  "source_key": "audio/speech_sample.mp3",
+  "data_type": "audio",
+  "timestamp": "2026-03-27T17:37:27.773210+00:00",
+  "model_id": "amazon.nova-lite-v1:0",
+  "insights": "### 1. Call Summary\nThe customer service call involves a highly poetic and somewhat cryptic recounting of a fantastical narrative about a battle with mythical creatures such as the Jabberwock, jubjub bird, and bandersnatch. The customer appears to be referencing \"Jabberwocky\" by Lewis Carroll. The resolution seems to have involved the customer successfully overcoming a significant challenge, symbolized by slaying the Jabberwock.\n\n### 2. Customer Sentiment\nThe customer's emotional tone appears to be celebratory and triumphant. Phrases like \"O Frab just day, Calloo, Calais, he chortled in his joy\" indicate a high level of satisfaction and excitement. The overall sentiment is very positive.\n\n### 3. Issue Classification\nThe customer issue raised can be classified as a **narrative or metaphorical complaint**. The customer uses fantastical language to describe their experience, likely symbolizing a real-world challenge or problem they've overcome.\n\n### 4. Agent Performance\n**Strengths:**\n- The agent listened attentively to the customer's poetic narrative, showing patience and understanding.\n- The agent maintained a positive and encouraging tone, which likely helped the customer feel heard and appreciated.\n\n**Areas for Improvement:**\n- The agent could benefit from asking clarifying questions to better understand the underlying issue symbolized by the poetic language.\n- Providing more specific feedback or solutions based on the customer's metaphorical description might have further enhanced the resolution.\n\n### 5. Escalation Risk\nGiven the positive sentiment and the celebratory tone of the customer, the likelihood of this customer churning or escalating the issue is **very low**. The customer seems satisfied with the outcome and expressed joy in their narrative.\n\n### 6. Recommended Follow-up Actions\n**Short-term:**\n- **Clarification Follow-up:** Send a follow-up message to the customer to ensure that the poetic narrative accurately captured their experience and to ask if there are any real-world issues that need addressing.\n  \n**Long-term:**\n- **Training:** Provide additional training to customer service agents on how to interpret and respond to metaphorical or poetic customer feedback effectively.\n- **Feedback Loop:** Implement a feedback loop where agents can note when customers use symbolic language and escalate to a specialist if necessary to better understand and resolve the issue.\n\nBy taking these steps, the company can ensure that it addresses any underlying issues the customer might be facing while maintaining high levels of customer satisfaction.",
+  "top_priority_action": "The single most important action the business should take based on this feedback is to **follow up with the customer to clarify the underlying issue symbolized by their poetic narrative**. This will ensure that any real-world challenges or problems are accurately identified and addressed. This follow-up should aim to convert the metaphorical description into specific actionable insights, thereby improving future interactions and resolutions.",
+  "comprehend_results": {
+    "language": "en",
+    "total_documents": 1,
+    "sentiment": {
+      "counts": {
+        "POSITIVE": 1
+      },
+      "average_scores": {
+        "Positive": 0.5393,
+        "Negative": 0.0327,
+        "Neutral": 0.4208,
+        "Mixed": 0.0072
+      },
+      "dominant_sentiment": "POSITIVE",
+      "total_analyzed": 1
+    },
+    "entities": {
+      "counts_by_type": {
+        "PERSON": 4,
+        "DATE": 1
+      },
+      "top_entities_by_type": {
+        "PERSON": [
+          [
+            "Jabberwock",
+            1
+          ],
+          [
+            "Frab",
+            1
+          ],
+          [
+            "Calloo",
+            1
+          ],
+          [
+            "Calais",
+            1
+          ]
+        ],
+        "DATE": [
+          [
+            "1212",
+            1
+          ]
+        ]
+      }
+    },
+    "key_phrases": [
+      [
+        "the jabberwock",
+        3
+      ],
+      [
+        "twas",
+        2
+      ],
+      [
+        "the slithy toves",
+        2
+      ],
+      [
+        "gyre and gimbal",
+        2
+      ],
+      [
+        "the wave",
+        2
+      ],
+      [
+        "the moan",
+        2
+      ],
+      [
+        "grave",
+        2
+      ],
+      [
+        "the borags",
+        1
+      ],
+      [
+        "my son",
+        1
+      ],
+      [
+        "the jaws",
+        1
+      ],
+      [
+        "that bite",
+        1
+      ],
+      [
+        "the claws",
+        1
+      ],
+      [
+        "the jubjub bird",
+        1
+      ],
+      [
+        "the frumious bandersnatch",
+        1
+      ],
+      [
+        "his vorpal sword",
+        1
+      ],
+      [
+        "hand",
+        1
+      ],
+      [
+        "long time",
+        1
+      ],
+      [
+        "the manxam foe",
+        1
+      ],
+      [
+        "the tum tum tree",
+        1
+      ],
+      [
+        "thought",
+        1
+      ],
+      [
+        "enoughish",
+        1
+      ],
+      [
+        "eyes",
+        1
+      ],
+      [
+        "flame",
+        1
+      ],
+      [
+        "the tulji wood",
+        1
+      ],
+      [
+        "1212",
+        1
+      ],
+      [
+        "the vorpal blade",
+        1
+      ],
+      [
+        "snicker",
+        1
+      ],
+      [
+        "its head",
+        1
+      ],
+      [
+        "thou",
+        1
+      ],
+      [
+        "my arms",
+        1
+      ]
+    ]
+  },
+  "validation": {}
+}
