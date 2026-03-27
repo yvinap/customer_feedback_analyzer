@@ -129,6 +129,7 @@ customer_feedback_analyzer/
 │   └── glue_job_script.py            # Glue ETL job (Spark) for CSV processing
 │
 └── scripts/
+    ├── generate_sample_data.py       # Generate synthetic structured + unstructured reviews
     ├── upload_sample_data.py         # Upload sample_data/ to S3 input bucket
     └── trigger_pipeline.py           # Manually trigger pipeline execution
 ```
@@ -197,7 +198,38 @@ After deployment, CDK outputs the S3 bucket names and the Step Functions ARN.
 
 ## Usage
 
-### 1. Upload Sample Data
+### 1. Generate Sample Data
+
+Use `scripts/generate_sample_data.py` to create synthetic structured and unstructured reviews
+ready for the pipeline. No AWS credentials are required for local generation.
+
+| Type | Output file | S3 prefix |
+|---|---|---|
+| `structured` | `text_reviews_<ts>.csv` | `text-reviews/` |
+| `survey` | `survey_<ts>.txt` | `surveys/` |
+| `unstructured` | `unstructured_<ts>.txt` | `text-reviews/` |
+
+```bash
+# Activate venv
+source .venv/bin/activate
+
+# Generate all types locally (50 records each, saved to sample_data/)
+python scripts/generate_sample_data.py
+
+# Custom record count with a fixed seed for reproducibility
+python scripts/generate_sample_data.py --count 200 --seed 42
+
+# Generate only specific types
+python scripts/generate_sample_data.py --types structured survey
+
+# Generate and upload directly to S3 in one step
+python scripts/generate_sample_data.py --upload
+
+# Generate and upload to a specific bucket
+python scripts/generate_sample_data.py --upload --bucket my-input-bucket
+```
+
+### 2. Upload Sample Data
 
 ```bash
 # Activate venv
@@ -210,7 +242,7 @@ python scripts/upload_sample_data.py
 python scripts/upload_sample_data.py --bucket my-bucket-name
 ```
 
-### 2. Trigger the Pipeline
+### 3. Trigger the Pipeline
 
 ```bash
 # Text reviews (uses sample CSV)
@@ -226,7 +258,7 @@ python scripts/trigger_pipeline.py --data-type audio --key audio/call_001.mp3
 python scripts/trigger_pipeline.py --data-type surveys --key surveys/q4_survey.csv
 ```
 
-### 3. Monitor Execution
+### 4. Monitor Execution
 
 ```bash
 # View Step Functions executions
@@ -240,7 +272,7 @@ AWS_PROFILE=aws_swami aws stepfunctions list-executions \
 # → AWS Console → CloudWatch → Dashboards → CFA-DataQualityDashboard
 ```
 
-### 4. View Insights
+### 5. View Insights
 
 Pipeline outputs are written to the **output S3 bucket** under:
 
