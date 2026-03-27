@@ -377,7 +377,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     if "unstructured" in args.types:
         reviews = generate_unstructured_reviews(args.count)
         for i, review in enumerate(reviews, start=1):
-            path = output_dir / f"unstructured_{ts}_{i:04d}.txt"
+            path = output_dir / f"survey_unstructured_{ts}_{i:04d}.txt"
             write_unstructured_txt(review, path)
             generated.append((path, f"text-reviews/{path.name}", "text/plain"))
         logger.info("Unstructured reviews: %d individual files written", len(reviews))

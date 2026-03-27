@@ -25,7 +25,9 @@ logger = logging.getLogger(__name__)
 SAMPLE_DATA_DIR = Path(__file__).parent.parent / "sample_data"
 
 # Maps local filename patterns → S3 key prefix
+# Order matters: more specific patterns must come before generic ones.
 UPLOAD_RULES: list[tuple[str, str]] = [
+    ("survey_*.txt", "surveys/"),    # unstructured survey text files
     ("*.csv", "text-reviews/"),
     ("*.json", "surveys/"),
     ("*.mp3", "audio/"),

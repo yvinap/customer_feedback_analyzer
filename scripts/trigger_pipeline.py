@@ -7,7 +7,7 @@ Supports all four data types:
   - text_reviews : uploads a CSV and fires immediately from an existing S3 key
   - images       : fires for an existing image in S3
   - audio        : fires for an existing audio file in S3
-  - surveys      : fires for an existing survey CSV in S3
+  - surveys      : fires for an existing unstructured survey text file in S3
 
 Usage examples:
     # Default: trigger text_reviews for the sample CSV already uploaded
@@ -22,7 +22,6 @@ Usage examples:
 
     # Watch execution until it finishes
     python scripts/trigger_pipeline.py --data-type surveys --watch
-"""
 from __future__ import annotations
 
 import argparse
@@ -42,7 +41,7 @@ DEFAULT_KEYS: dict[str, str] = {
     "text_reviews": "text-reviews/amazon.csv",
     "images": "images/sample_product.jpg",
     "audio": "audio/sample_call.mp3",
-    "surveys": "surveys/sample_survey.csv",
+    "surveys": "surveys/sample_survey.txt",
 }
 
 
