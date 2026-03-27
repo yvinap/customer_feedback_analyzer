@@ -42,25 +42,43 @@ def handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
 
     data_type: str = event.get("data_type", "unknown")
     dimensions = [{"Name": "DataType", "Value": data_type}]
+    no_dimensions: list[dict] = []  # used for aggregate (dashboard-visible) metrics
 
     metric_data: list[dict] = []
 
     # ── Pipeline success ───────────────────────────────────────────────────────
+    # Publish with AND without the DataType dimension so the CloudWatch
+    # dashboard (which queries without dimensions) receives the data.
     metric_data.append({
         "MetricName": "PipelineExecutionsSucceeded",
         "Value": 1.0,
         "Unit": "Count",
         "Dimensions": dimensions,
     })
+    metric_data.append({
+        "MetricName": "PipelineExecutionsSucceeded",
+        "Value": 1.0,
+        "Unit": "Count",
+        "Dimensions": no_dimensions,
+    })
 
     # ── Final quality score ────────────────────────────────────────────────────
-    final_score = _safe_float(event.get("final_quality_score"), 0.0)
-    if final_score > 0:
+    # Publish whenever the key is present (score of 0 is valid — don't suppress it).
+    raw_final_score = event.get("final_quality_score")
+    if raw_final_score is not None:
+        final_score = _safe_float(raw_final_score, 0.0)
         metric_data.append({
             "MetricName": "FinalDataQualityScore",
             "Value": final_score,
             "Unit": "None",
             "Dimensions": dimensions,
+        })
+        # Aggregate (no dimension) for dashboard
+        metric_data.append({
+            "MetricName": "FinalDataQualityScore",
+            "Value": final_score,
+            "Unit": "None",
+            "Dimensions": no_dimensions,
         })
 
     # ── Validation metrics ─────────────────────────────────────────────────────
@@ -79,6 +97,13 @@ def handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
                 "Value": invalid_rows,
                 "Unit": "Count",
                 "Dimensions": dimensions,
+            })
+            # Aggregate (no dimension) for dashboard
+            metric_data.append({
+                "MetricName": "ValidationFailures",
+                "Value": invalid_rows,
+                "Unit": "Count",
+                "Dimensions": no_dimensions,
             })
 
     # ── Comprehend sentiment ───────────────────────────────────────────────────

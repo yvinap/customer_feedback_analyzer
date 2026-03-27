@@ -61,17 +61,25 @@ def _start_execution(bucket: str, key: str, data_type: str) -> str:
 
 
 def _publish_metric(data_type: str, metric_name: str, value: float = 1.0) -> None:
+    """Publish a metric with DataType dimension AND without (for dashboard aggregation)."""
+    metric_data = [
+        {
+            "MetricName": metric_name,
+            "Value": value,
+            "Unit": "Count",
+            "Dimensions": [{"Name": "DataType", "Value": data_type}],
+        },
+        {
+            "MetricName": metric_name,
+            "Value": value,
+            "Unit": "Count",
+            "Dimensions": [],  # no-dimension copy so dashboard widgets show data
+        },
+    ]
     try:
         cloudwatch.put_metric_data(
             Namespace=METRICS_NAMESPACE,
-            MetricData=[
-                {
-                    "MetricName": metric_name,
-                    "Value": value,
-                    "Unit": "Count",
-                    "Dimensions": [{"Name": "DataType", "Value": data_type}],
-                }
-            ],
+            MetricData=metric_data,
         )
     except Exception:
         logger.warning("Failed to publish metric %s", metric_name, exc_info=True)

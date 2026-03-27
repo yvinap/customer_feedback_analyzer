@@ -53,13 +53,23 @@ QUALITY_POSITIVE_PATTERNS = [
 def _score_from_insights(insights_text: str) -> tuple[float, list[str]]:
     """
     Derive a quality adjustment signal from the model's insights text.
-    Returns (adjustment: -20 to +20, issues: list of identified concerns).
+    Returns (adjustment: -10 to +10, issues: list of identified concerns).
+
+    NOTE: Bedrock's business analysis routinely uses words like "missing",
+    "incomplete", "unclear" to describe customer pain-points — NOT data quality
+    issues. We therefore apply a very conservative, capped adjustment so that
+    the language of the business report cannot drive the quality score to zero.
     """
     concerns: list[str] = []
     concern_hits = 0
     positive_hits = 0
 
-    for pattern in QUALITY_CONCERN_PATTERNS:
+    # Only flag explicit data-quality phrases, not general business language
+    DATA_QUALITY_CONCERN_PATTERNS = [
+        re.compile(r"\b(no data|no information|data is missing|data quality|empty response)\b", re.I),
+        re.compile(r"\b(could not analyze|unable to analyze|insufficient data)\b", re.I),
+    ]
+    for pattern in DATA_QUALITY_CONCERN_PATTERNS:
         matches = pattern.findall(insights_text)
         if matches:
             concern_hits += len(matches)
@@ -68,9 +78,9 @@ def _score_from_insights(insights_text: str) -> tuple[float, list[str]]:
     for pattern in QUALITY_POSITIVE_PATTERNS:
         positive_hits += len(pattern.findall(insights_text))
 
-    # Scale adjustments
-    adjustment = (positive_hits * 2) - (concern_hits * 5)
-    adjustment = max(-20.0, min(20.0, float(adjustment)))
+    # Cap adjustment tightly so business language cannot zero-out the score
+    adjustment = (positive_hits * 1) - (concern_hits * 3)
+    adjustment = max(-10.0, min(10.0, float(adjustment)))
 
     return adjustment, concerns
 

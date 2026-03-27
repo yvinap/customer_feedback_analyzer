@@ -261,7 +261,7 @@ class DataValidationStack(Stack):
         )
         avg_quality_score = cloudwatch.Metric(
             namespace="CustomerFeedbackAnalyzer",
-            metric_name="DataQualityScore",
+            metric_name="FinalDataQualityScore",
             statistic="Average",
             period=Duration.minutes(5),
         )
